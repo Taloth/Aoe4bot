@@ -63,13 +63,25 @@ async function getPlayerWinRate(player, opponent, gap, timespan) {
     if (!game.duration)
       continue;
 
-    var playerState = game.teams.flat().filter(p => playerProfileIds.includes(p.player.profile_id))[0]?.player;
-    var opponentState;
-    if (opponent) {
-      opponentState = game.teams.flat().filter(p => p.player.profile_id == opponent.profile_id)[0]?.player;
-      if (!opponentState) {
-        continue;
-      }
+    var playerState = null;
+    var opponentState = null;
+
+    for (const team of game.teams) {
+      const teamPlayer = team.filter(p => playerProfileIds.includes(p.player.profile_id))[0]?.player;
+      const teamOpponent = opponent ? team.filter(p => p.player.profile_id == opponent.profile_id)[0]?.player : null;
+
+      if (teamPlayer)
+        playerState = teamPlayer;
+      else if (teamOpponent) // Note this also filters out games where the player and opponent are in the same team
+        opponentState = teamOpponent;
+    }
+
+    if (!playerState) {
+      continue;
+    }
+
+    if (opponent && !opponentState) {
+      continue;
     }
 
     if (!stats.last_game_at) {
