@@ -11,7 +11,7 @@ async function getPlayerWinRate(player, opponent, thresholdHours) {
   }
 
   // Fetch the first 50 games for all specified profileIds and merge them.
-  var games = (await Promise.all(playerProfileIds.map(p => aoe4.getPlayerGames(p)))).filter(v => v !== null).flat().sort((a, b) => b.game_id - a.game_id);
+  var games = (await Promise.all(playerProfileIds.map(p => aoe4.getPlayerGames(p)))).filter(v => v !== null).flat().filter(g => !!g.duration).sort((a, b) => b.game_id - a.game_id);
 
   const stats = {
     player:  Array.isArray(player) ? player[0] : player,
