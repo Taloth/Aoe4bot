@@ -191,7 +191,7 @@ async function handleAoe4Rank(req, res) {
 // format       Specifies the format of the output, defaults to json. 'nightbot' is a text output for twitch chat.
 async function handleAoe4WinRate(req, res) {
   var query = req.query.query || '';
-  const leaderboard = req.query.leaderboard || 'rm_1v1';
+  const leaderboard = req.query.leaderboard;
   const format = req.query.format;
   var timespan = req.query.timespan !== undefined ? parseInt(req.query.timespan) : null;
   const gap = req.query.gap !== undefined ? parseInt(req.query.gap) : 4;
