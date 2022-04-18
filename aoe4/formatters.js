@@ -69,7 +69,7 @@ class NightbotDefaultFormatter {
     }
 
     if (short) {
-      msg += ` [${this.formatCiv(player.civilization)}]`;
+      msg += ` (${this.formatCiv(player.civilization)})`;
     } else {
       msg += ` - ${this.formatCiv(player.civilization)}`;
     }
@@ -86,10 +86,14 @@ class NightbotDefaultFormatter {
   }
 
   sendMatch(match, res) {
+    const numTeams = match.teams.length;
+    const numPlayers = match.teams.flat().length;
+    const useShortFormat = numPlayers > 3; // Keep showing elo for 1v2 games. if we ever get custom.
+
     var msg;
-    if (match.teams.length == 2) {
-      const teamA = this.formatMatchTeam(match, match.teams[0]);
-      const teamB = this.formatMatchTeam(match, match.teams[1]);
+    if (numTeams == 2) {
+      const teamA = this.formatMatchTeam(match, match.teams[0], useShortFormat);
+      const teamB = this.formatMatchTeam(match, match.teams[1], useShortFormat);
 
       msg = `==> ${match.map} <==`;
       if (!match.ongoing) {
@@ -98,9 +102,12 @@ class NightbotDefaultFormatter {
         msg = `[${team1W?'W':'L'}] ${msg} [${team2W?'W':'L'}]`;
       }
       msg = `${teamA} ${msg} ${teamB}`;
+    } else if (numPlayers == numTeams) {
+      const teams = match.teams.map(t => this.formatMatchTeam(match, t, true)).join(', ');
+      msg = `FFA on ${match.map} between ${teams}`;
     } else {
       const teams = match.teams.map(t => this.formatMatchTeam(match, t, true)).join(' vs ');
-      msg = `${teams} on ${match.map}`;
+      msg = `Custom on ${match.map} between ${teams}`;
     }
     msg += `, ${formatAge(match.started_at)} ago`;
     res.send(msg);
