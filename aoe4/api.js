@@ -30,7 +30,7 @@ async function findPlayerByName(name, leaderboard) {
   if (leaderboard && !isValidLeaderboard(leaderboard))
     return null;
 
-  /*if (leaderboard) {
+  if (leaderboard) {
     const json = await fetchAOE4World('/players/autocomplete', { query: name, leaderboard: leaderboard });
     if (json && json.count && json.players) {
       const player = json.players[0];
@@ -50,8 +50,7 @@ async function findPlayerByName(name, leaderboard) {
       };
       return player;
     }
-  } else*/
-  {
+  } else {
     const json = await fetchAOE4World('/players/search', { query: name });
     if (json && json.count && json.players) {
       const player = json.players[0];
