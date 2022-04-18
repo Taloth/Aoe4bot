@@ -2,12 +2,28 @@
 const aoe4 = require('./api');
 const { getFormatter } = require('./formatters');
 
-// thresholdHours is the number of hours to check. Negative is a sliding window. It defaults to -4, in which case it'll continue counting games when the time between two games don't exceed 4 hours.
-async function getPlayerWinRate(player, opponent, thresholdHours) {
+function parseTimespan(number, suffix) {
+  if (suffix.match(/^(h|hour|hours)$/)) {
+    return number;
+  } else if (suffix.match(/^(d|day|days)$/)) {
+    return number * 24;
+  } else if (suffix.match(/^(w|week|weeks)$/)) {
+    return number * 24 * 7;
+  } else if (suffix.match(/^(m|month|months)$/)) {
+    return number * 24 * 30;  // Approx. don't make me do calendar checks
+  } else if (suffix.match(/^(y|year|years)$/)) {
+    return number * 24 * 365; // Approx. don't make me do calendar checks
+  }
+
+  return null;
+}
+
+// gap is the session idle time, defaults to 4 * 3600 seconds. timespan overrides that and is an absolute interval in seconds.
+async function getPlayerWinRate(player, opponent, gap, timespan) {
   const playerProfileIds = Array.isArray(player) ? player.map(p => p.profile_id) : [ player.profile_id ];
 
-  if (!thresholdHours) {
-    thresholdHours = -4;
+  if (gap === undefined) {
+    gap = 4 * 3600;
   }
 
   // Fetch the first 50 games for all specified profileIds and merge them.
@@ -16,6 +32,7 @@ async function getPlayerWinRate(player, opponent, thresholdHours) {
   const stats = {
     player:  Array.isArray(player) ? player[0] : player,
     opponent: opponent,
+    timespan: timespan,
     games_count: 0,
     wins_count: 0,
     losses_count: 0,
@@ -32,11 +49,11 @@ async function getPlayerWinRate(player, opponent, thresholdHours) {
 
     var gametime = Date.parse(game.started_at);
 
-    if (thresholdHours < 0) {
-      if ((lastgame - gametime) > -thresholdHours * 3600000)
+    if (!timespan) {
+      if ((lastgame - gametime) > gap * 1000)
         break;
     } else {
-      if ((now - gametime) > thresholdHours * 3600000)
+      if ((now - gametime) > timespan * 1000)
         break;
     }
 
@@ -161,13 +178,32 @@ async function handleAoe4Rank(req, res) {
 // leaderboard  Specifies on which leaderboard to search for the user. (Note: this won't filter matches)
 // format       Specifies the format of the output, defaults to json. 'nightbot' is a text output for twitch chat.
 async function handleAoe4WinRate(req, res) {
-  const query = req.query.query || '';
+  var query = req.query.query || '';
   const leaderboard = req.query.leaderboard || 'rm_1v1';
   const format = req.query.format;
+  var timespan = req.query.timespan !== undefined ? parseInt(req.query.timespan) : null;
+  const gap = req.query.gap !== undefined ? parseInt(req.query.gap) : 4;
+
+  const formatter = getFormatter(format);
+
+  if (!formatter) {
+    res.status(400).send('Invalid formatter specified');
+    return;
+  }
 
   var player = null;
   var opponent = null;
   if (query.length) {
+    // Handle the 'last x days' suffix
+    var timespanMatch = query.match(/^(.*?) last (\d+) ?([a-z]+)/);
+    if (timespanMatch) {
+      query = timespanMatch[1];
+      timespan = parseTimespan(timespanMatch[2], timespanMatch[3]);
+      if (timespan === null) {
+        formatter.sendError('Invalid timespan specified', res);
+        return;
+      }
+    }
     var versus = query.split(/ ?vs /);
     if (versus.length == 2 && versus[1].length) {
       if (versus[0].length) {
@@ -180,6 +216,10 @@ async function handleAoe4WinRate(req, res) {
         player = [ await aoe4.getPlayer(profileIds[0]), ...profileIds.slice(1).map(p => { return { profile_id: p }}) ];
       }
       opponent = await aoe4.findPlayerByQuery(versus[1], leaderboard);
+      if (!opponent) {
+        formatter.sendError('No player found for opponent', res);
+        return;
+      }
     } else {
       player = [ await aoe4.findPlayerByQuery(query, leaderboard) ];
     }
@@ -189,15 +229,8 @@ async function handleAoe4WinRate(req, res) {
     player = [ await aoe4.getPlayer(profileIds[0]), ...profileIds.slice(1).map(p => { return { profile_id: p }}) ];
   }
 
-  const formatter = getFormatter(format);
-
-  if (!formatter) {
-    res.status(400).send('Invalid formatter specified');
-    return;
-  }
-
   if (player.length && player[0]) {
-    const winrate = await getPlayerWinRate(player, opponent);
+    const winrate = await getPlayerWinRate(player, opponent, gap * 3600, timespan * 3600);
     if (winrate) {
       winrate.player = player[0];
       if (opponent) winrate.opponent = opponent;

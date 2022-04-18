@@ -163,6 +163,10 @@ class NightbotDefaultFormatter {
       msg += ` vs ${winrate.opponent.name}`;
     }
 
+    if (winrate.timespan) {
+      msg +=  ` in the last ${formatDuration(winrate.timespan)}`;
+    }
+
     if (winrate.last_game_at) {
       msg += `, ${formatAge(winrate.last_game_at)} ago`;
     }
