@@ -137,6 +137,7 @@ class NightbotDefaultFormatter {
 
   sendWinRate(winrate, res) {
     var msg = `${winrate.player.name} played ${winrate.games_count} game${winrate.games_count == 1?'':'s'}`;
+
     if (winrate.games_count) {
       msg += ` (${winrate.wins_count}-${winrate.losses_count} | ${winrate.win_rate}%)`;
     }

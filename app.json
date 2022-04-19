@@ -1,0 +1,8 @@
+{
+    "name": "Age of Empires 4 chatbot",
+    "description": "Aoe4 bot for aoe4world.com api to provide rich !rank, !match and !winrate commands",
+    "repository": "https://github.com/Taloth/Aoe4bot",
+    "keywords": ["node", "express", "aoe4", "aoe4world"],
+    "image": "heroku/nodejs"
+  }
+  
