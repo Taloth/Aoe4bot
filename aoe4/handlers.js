@@ -29,8 +29,7 @@ async function getPlayerWinRate(player, opponent, thresholdHours) {
   var lastgame = games[0] ? Date.parse(games[0].started_at) : Date.now();
 
   for (const game of games) {
-    if (!game.duration)
-      continue;
+
     var gametime = Date.parse(game.started_at);
 
     if (thresholdHours < 0) {
@@ -42,6 +41,10 @@ async function getPlayerWinRate(player, opponent, thresholdHours) {
     }
 
     lastgame = gametime;
+
+    // Skip ongoing games in the calculation
+    if (!game.duration)
+      continue;
 
     var playerState = game.teams.flat().filter(p => playerProfileIds.includes(p.player.profile_id))[0]?.player;
     var opponentState;
