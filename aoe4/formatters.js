@@ -156,7 +156,7 @@ class NightbotDefaultFormatter {
     }
 
     if (winrate.duration) {
-      msg +=  ` lasting ${formatDuration(winrate.duration)}`;
+      msg += ` totaling ${formatDuration(winrate.duration)}`;
     }
 
     if (winrate.opponent) {
@@ -164,7 +164,9 @@ class NightbotDefaultFormatter {
     }
 
     if (winrate.timespan) {
-      msg +=  ` in the last ${formatDuration(winrate.timespan)}`;
+      msg += ` in the last ${formatDuration(winrate.timespan)}`;
+    } else if (winrate.gap) {
+      msg += ` in their last session`;
     }
 
     if (winrate.pending_games == 1) {

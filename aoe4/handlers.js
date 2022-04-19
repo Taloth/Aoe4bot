@@ -34,6 +34,7 @@ async function getPlayerWinRate(player, opponent, gap, timespan) {
     player:  Array.isArray(player) ? player[0] : player,
     opponent: opponent,
     timespan: timespan,
+    gap: gap,
     games_count: 0,
     wins_count: 0,
     losses_count: 0,
