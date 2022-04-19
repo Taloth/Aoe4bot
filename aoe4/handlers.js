@@ -29,6 +29,8 @@ async function getPlayerWinRate(player, opponent, thresholdHours) {
   var lastgame = games[0] ? Date.parse(games[0].started_at) : Date.now();
 
   for (const game of games) {
+    if (!game.duration)
+      continue;
     var gametime = Date.parse(game.started_at);
 
     if (thresholdHours < 0) {

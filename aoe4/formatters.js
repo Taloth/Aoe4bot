@@ -117,14 +117,14 @@ class NightbotDefaultFormatter {
     const mode = player.modes[leaderboard];
 
     if (!mode) {
-      var msg = `"${player.name}" is unranked in ${formatLeaderboard(leaderboard)}`;
+      var msg = `${player.name} is unranked in ${formatLeaderboard(leaderboard)}`;
       res.send(msg);
       return;
     }
 
     const rank = mode.rank ? `rank ${mode.rank}` : 'unranked';
     const rank_level = mode.rank_level ? formatRankLevel(mode.rank_level) + ', ' : '';
-    var msg = `"${player.name}" is ${rank} (${rank_level}${mode.rating} Elo), with ${mode.games_count} game${mode.games_count == 1?'':'s'} (${mode.wins_count}-${mode.losses_count} | ${mode.win_rate}%)`;
+    var msg = `${player.name} is ${rank} (${rank_level}${mode.rating} Elo), with ${mode.games_count} game${mode.games_count == 1?'':'s'} (${mode.wins_count}-${mode.losses_count} | ${mode.win_rate}%)`;
 
     if (Number.isInteger(mode.streak)) {
         const streak = parseInt(mode.streak) < 0 ? "losing" : "win";
@@ -136,14 +136,17 @@ class NightbotDefaultFormatter {
   }
 
   sendWinRate(winrate, res) {
-    var msg = `"${winrate.player.name}" played ${winrate.games_count} game${winrate.games_count == 1?'':'s'} (${winrate.wins_count}-${winrate.losses_count} | ${winrate.win_rate}%)`;
+    var msg = `${winrate.player.name} played ${winrate.games_count} game${winrate.games_count == 1?'':'s'}`;
+    if (winrate.games_count) {
+      msg += ` (${winrate.wins_count}-${winrate.losses_count} | ${winrate.win_rate}%)`;
+    }
 
     if (winrate.duration) {
       msg +=  ` lasting ${formatDuration(winrate.duration)}`;
     }
 
     if (winrate.opponent) {
-      msg += ` vs "${winrate.opponent.name}"`;
+      msg += ` vs ${winrate.opponent.name}`;
     }
 
     if (winrate.last_game_at) {
