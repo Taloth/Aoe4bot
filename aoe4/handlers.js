@@ -26,8 +26,9 @@ async function getPlayerWinRate(player, opponent, gap, timespan) {
     gap = 4 * 3600;
   }
 
-  // Fetch the first 50 games for all specified profileIds and merge them.
-  var games = (await Promise.all(playerProfileIds.map(p => aoe4.getPlayerGames(p)))).filter(v => v !== null).flat().sort((a, b) => b.game_id - a.game_id);
+  // Get the games iterator, which will fetch new pages as needed and multiplex profiles.
+  var gamesEnumerator = await aoe4.enumPlayerGames(playerProfileIds);
+  var games = await gamesEnumerator;
 
   const stats = {
     player:  Array.isArray(player) ? player[0] : player,
@@ -43,16 +44,16 @@ async function getPlayerWinRate(player, opponent, gap, timespan) {
   };
 
   var now = Date.now();
-  var lastgame = games[0] ? Date.parse(games[0].started_at) : Date.now();
+  var lastgame = 0;
   var pendingGames = 0;
   var pendingGame = null;
 
-  for (const game of games) {
+  for await (const game of games) {
 
     var gametime = Date.parse(game.started_at);
 
     if (!timespan) {
-      if ((lastgame - gametime) > gap * 1000)
+      if (lastgame && (lastgame - gametime) > gap * 1000)
         break;
     } else {
       if ((now - gametime) > timespan * 1000)
@@ -60,16 +61,6 @@ async function getPlayerWinRate(player, opponent, gap, timespan) {
     }
 
     lastgame = gametime;
-
-    // Skip ongoing games in the calculation
-    if (!game.duration) {
-      if (!pendingGame) {
-        pendingGame = game;
-      }
-      pendingGames += 1;
-
-      continue;
-    }
 
     var playerState = null;
     var opponentState = null;
@@ -89,6 +80,20 @@ async function getPlayerWinRate(player, opponent, gap, timespan) {
     }
 
     if (opponent && !opponentState) {
+      continue;
+    }
+
+    // Skip ongoing games in the calculation
+    if (!game.duration) {
+
+      // Only track pending games in the last 3 hours (due to old canceled games)
+      if (Date.parse(game.started_at) > (now - 3 * 3600 * 1000)) {
+        if (!pendingGame) {
+          pendingGame = game;
+        }
+        pendingGames += 1;
+      }
+
       continue;
     }
 
@@ -220,15 +225,17 @@ async function handleAoe4WinRate(req, res) {
   var opponent = null;
   if (query.length) {
     // Handle the 'last x days' suffix
-    var timespanMatch = query.match(/^(.*?) last (\d+) ?([a-z]+)/);
+    var timespanMatch = query.match(/^(?:(.+?) )?last (\d+) ?([a-z]+)/);
     if (timespanMatch) {
-      query = timespanMatch[1];
+      query = timespanMatch[1] || '';
       timespan = parseTimespan(timespanMatch[2], timespanMatch[3]);
       if (timespan === null) {
         formatter.sendError('Invalid timespan specified', res);
         return;
       }
     }
+  }
+  if (query.length) {
     var versus = query.split(/ ?vs /);
     if (versus.length == 2 && versus[1].length) {
       if (versus[0].length) {
