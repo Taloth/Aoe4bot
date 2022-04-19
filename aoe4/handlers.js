@@ -44,6 +44,8 @@ async function getPlayerWinRate(player, opponent, gap, timespan) {
 
   var now = Date.now();
   var lastgame = games[0] ? Date.parse(games[0].started_at) : Date.now();
+  var pendingGames = 0;
+  var pendingGame = null;
 
   for (const game of games) {
 
@@ -60,8 +62,14 @@ async function getPlayerWinRate(player, opponent, gap, timespan) {
     lastgame = gametime;
 
     // Skip ongoing games in the calculation
-    if (!game.duration)
+    if (!game.duration) {
+      if (!pendingGame) {
+        pendingGame = game;
+      }
+      pendingGames += 1;
+
       continue;
+    }
 
     var playerState = null;
     var opponentState = null;
@@ -96,6 +104,11 @@ async function getPlayerWinRate(player, opponent, gap, timespan) {
     } else if (playerState.result == "loss") {
       stats.losses_count += 1;
     }
+  }
+
+  stats.pending_games = pendingGames;
+  if (pendingGame) {
+    stats.pending_game_started_at = pendingGame.started_at;
   }
 
   if (stats.losses_count) {
