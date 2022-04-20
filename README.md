@@ -21,10 +21,10 @@ You're free to Woolooloo if you can pull it off, KEKW
 - `query` can be empty, a rank `#1` or a player name.
 
 **Examples:**   
-- `!rank` -> "Liquid.DeMusliM" is rank 4 (D3, 1366 Elo), with 56 games (46-10 | 82.1%), on a 5-game win streak [last played 21 min ago]   
-- `!rank core` -> "coRe" is rank 12 (D2, 1281 Elo), with 81 games (55-26 | 67.9%), on a 6-game win streak [last played 1 day ago]   
-- `!rank #1` -> "Beastyqt" is rank 1 (C1, 1448 Elo), with 50 games (46-4 | 92%), on a 1-game losing streak [last played 19 hours ago]   
-- `!rank #51` -> "1puppypaw" is rank 51 (D1, 1174 Elo), with 14 games (12-2 | 85.7%), on a 2-game win streak [last played 7 min ago]
+- `!rank` -> "Liquid.DeMusliM" is rank #4 (D3, 1366 Elo), with 56 games (46-10 | 82.1%), on a 5-game win streak [last played 21 min ago]   
+- `!rank core` -> "coRe" is rank #12 (D2, 1281 Elo), with 81 games (55-26 | 67.9%), on a 6-game win streak [last played 1 day ago]   
+- `!rank #1` -> "Beastyqt" is rank #1 (C1, 1448 Elo), with 50 games (46-4 | 92%), on a 1-game losing streak [last played 19 hours ago]   
+- `!rank #51` -> "1puppypaw" is rank #51 (D1, 1174 Elo), with 14 games (12-2 | 85.7%), on a 2-game win streak [last played 7 min ago]
 - `!rank alsdkfjasfldkj` -> Error: No player found
 
 ### !match
