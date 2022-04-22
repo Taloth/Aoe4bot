@@ -109,7 +109,12 @@ class NightbotDefaultFormatter {
       const teams = match.teams.map(t => this.formatMatchTeam(match, t, true)).join(' vs ');
       msg = `Custom on ${match.map} between ${teams}`;
     }
-    msg += `, ${formatAge(match.started_at)} ago`;
+    if (match.ongoing) {
+        msg += " [started "
+    } else {
+        msg += " [played "
+    }
+    msg += `${formatAge(match.started_at)} ago]`;
     res.send(msg);
   }
 
