@@ -127,7 +127,7 @@ class NightbotDefaultFormatter {
       return;
     }
 
-    const rank = mode.rank ? `rank #${mode.rank}` : 'unranked';
+    const rank = mode.rank != null ? `rank #${mode.rank}` : 'unranked';
     const rank_level = mode.rank_level ? formatRankLevel(mode.rank_level) + ', ' : '';
     const rating = mode.rating ? ` (${rank_level}${mode.rating} Elo)` : '';
     var msg = `${player.name} is ${rank}${rating}, with ${mode.games_count || 0} game${mode.games_count == 1?'':'s'}`;

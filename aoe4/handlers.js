@@ -90,7 +90,7 @@ async function handleAoe4Match(req, res) {
   const players = [];
   if (query.length) {
     const player = await aoe4.findPlayerByQuery(query, leaderboard || 'rm_1v1');
-    if (player) {
+    if (player && player.profile_id) {
       players.push(player.profile_id);
     }
   } else if (req.query.player) {

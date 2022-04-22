@@ -69,6 +69,24 @@ async function findPlayerByRank(rank, leaderboard) {
   if (!isValidLeaderboard(leaderboard))
     return null;
 
+  if (rank < 0) {
+    return null;
+  }
+
+  if (rank == 0) {
+    return {
+      name: 'Twitch Chat',
+      modes: {
+        [leaderboard]: {
+          "rating": 9999,
+          "rank": 0,
+          "games_count": 0,
+          "rank_level": leaderboard == 'rm_1v1' ? 'conqueror_4' : null
+        }
+      }
+    };
+  }
+
   const page = 1 + Math.floor(rank / 50);
   const json = await fetchAOE4World(`/leaderboards/${leaderboard}`, { page: page });
 
