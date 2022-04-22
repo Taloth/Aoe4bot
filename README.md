@@ -26,6 +26,7 @@ You're free to Woolooloo if you can pull it off, KEKW
 - `!rank #1` -> "Beastyqt" is rank #1 (C1, 1448 Elo), with 50 games (46-4 | 92%), on a 1-game losing streak [last played 19 hours ago]   
 - `!rank #51` -> "1puppypaw" is rank #51 (D1, 1174 Elo), with 14 games (12-2 | 85.7%), on a 2-game win streak [last played 7 min ago]
 - `!rank alsdkfjasfldkj` -> Error: No player found
+- `!rank Serral` -> Serral is unranked, with no games (0-0 | 0%) [never played]
 
 ### !match
 
