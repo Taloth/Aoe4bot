@@ -122,7 +122,7 @@ class NightbotDefaultFormatter {
       return;
     }
 
-    const rank = mode.rank ? `rank ${mode.rank}` : 'unranked';
+    const rank = mode.rank ? `rank #${mode.rank}` : 'unranked';
     const rank_level = mode.rank_level ? formatRankLevel(mode.rank_level) + ', ' : '';
     var msg = `${player.name} is ${rank} (${rank_level}${mode.rating} Elo), with ${mode.games_count} game${mode.games_count == 1?'':'s'} (${mode.wins_count}-${mode.losses_count} | ${mode.win_rate}%)`;
 
