@@ -109,7 +109,12 @@ class NightbotDefaultFormatter {
       const teams = match.teams.map(t => this.formatMatchTeam(match, t, true)).join(' vs ');
       msg = `Custom on ${match.map} between ${teams}`;
     }
-    msg += `, ${formatAge(match.started_at)} ago`;
+    if (match.ongoing) {
+        msg += ` [started ${formatAge(match.started_at)} ago]`;
+    } else {
+        msg += ` [played ${formatAge(match.started_at)} ago]`;
+    }
+
     res.send(msg);
   }
 
@@ -124,13 +129,21 @@ class NightbotDefaultFormatter {
 
     const rank = mode.rank ? `rank #${mode.rank}` : 'unranked';
     const rank_level = mode.rank_level ? formatRankLevel(mode.rank_level) + ', ' : '';
-    var msg = `${player.name} is ${rank} (${rank_level}${mode.rating} Elo), with ${mode.games_count} game${mode.games_count == 1?'':'s'} (${mode.wins_count}-${mode.losses_count} | ${mode.win_rate}%)`;
+    const rating = mode.rating ? ` (${rank_level}${mode.rating} Elo)` : '';
+    var msg = `${player.name} is ${rank}${rating}, with ${mode.games_count || 0} game${mode.games_count == 1?'':'s'}`;
+
+    if (mode.games_count) {
+      msg += ` (${mode.wins_count}-${mode.losses_count} | ${mode.win_rate}%)`;
+    }
 
     if (Number.isInteger(mode.streak)) {
         const streak = parseInt(mode.streak) < 0 ? "losing" : "win";
         msg += `, on a ${Math.abs(mode.streak)}-game ${streak} streak`;
     }
-    msg += ` [last played ${formatAge(mode.last_game_at)} ago]`;
+
+    if (mode.last_game_at) {
+        msg += ` [last played ${formatAge(mode.last_game_at)} ago]`;
+    }
 
     res.send(msg);
   }

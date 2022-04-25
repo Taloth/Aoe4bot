@@ -26,6 +26,7 @@ You're free to Woolooloo if you can pull it off, KEKW
 - `!rank #1` -> "Beastyqt" is rank #1 (C1, 1448 Elo), with 50 games (46-4 | 92%), on a 1-game losing streak [last played 19 hours ago]   
 - `!rank #51` -> "1puppypaw" is rank #51 (D1, 1174 Elo), with 14 games (12-2 | 85.7%), on a 2-game win streak [last played 7 min ago]
 - `!rank alsdkfjasfldkj` -> Error: No player found
+- `!rank Serral` -> Serral is unranked, with 0 games
 
 ### !match
 
@@ -39,11 +40,11 @@ You're free to Woolooloo if you can pull it off, KEKW
 - `query` can be empty, a rank `#1` or a player name.
 
 **Examples:**   
-- `!match` -> supermoronreallystupid #293 (P3, 1103 Elo) - English ==> Hill and Dale <== Liquid.DeMusliM #4 (D3, 1366 Elo) - Chinese, 23 min ago
-- `!match core` -> coRe #12 (D2, 1281 Elo) - HRE [W] ==> Hill and Dale <== [L] eswallace #78 (D1, 1151 Elo) - Abbasid, 1 day ago
-- `!match #1` -> Beastyqt #1 (C1, 1448 Elo) - Delhi [L] ==> Lipany <== [W] Leenock #3 (D3, 1368 Elo) - Abbasid, 20 hours ago
+- `!match` -> supermoronreallystupid #293 (P3, 1103 Elo) - English ==> Hill and Dale <== Liquid.DeMusliM #4 (D3, 1366 Elo) - Chinese [started 23 min ago]
+- `!match core` -> coRe #12 (D2, 1281 Elo) - HRE [W] ==> Hill and Dale <== [L] eswallace #78 (D1, 1151 Elo) - Abbasid [played 1 day ago]
+- `!match #1` -> Beastyqt #1 (C1, 1448 Elo) - Delhi [L] ==> Lipany <== [W] Leenock #3 (D3, 1368 Elo) - Abbasid [played 20 hours ago]
 - `!match alsdkfjasfldkj` -> Error: No player found
-- `!match TheMista` (played a qm_2v2) ->  mYi.TheMista #9 (1931 Elo) - English, paphellas #85 (1661 Elo) - Mongols [W] ==> King of the Hill <== [L] bigboser #1355 (1328 Elo) - French, LaGastonnade #984 (1366 Elo) - Rus, 4 days ago
+- `!match TheMista` (played a qm_2v2) ->  mYi.TheMista #9 (1931 Elo) - English, paphellas #85 (1661 Elo) - Mongols [W] ==> King of the Hill <== [L] bigboser #1355 (1328 Elo) - French, LaGastonnade #984 (1366 Elo) - Rus [played 4 days ago]
 
 ## !winrate
 
