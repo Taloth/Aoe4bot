@@ -130,7 +130,7 @@ class NightbotDefaultFormatter {
     const rank = mode.rank ? `rank #${mode.rank}` : 'unranked';
     const rank_level = mode.rank_level ? formatRankLevel(mode.rank_level) + ', ' : '';
     const rating = mode.rating ? ` (${rank_level}${mode.rating} Elo)` : '';
-    var msg = `${player.name} is ${rank}${rating}, with ${mode.games_count} game${mode.games_count == 1?'':'s'}`;
+    var msg = `${player.name} is ${rank}${rating}, with ${mode.games_count || 0} game${mode.games_count == 1?'':'s'}`;
 
     if (mode.games_count) {
       msg += ` (${mode.wins_count}-${mode.losses_count} | ${mode.win_rate}%)`;
@@ -141,7 +141,7 @@ class NightbotDefaultFormatter {
         msg += `, on a ${Math.abs(mode.streak)}-game ${streak} streak`;
     }
 
-    if (mode.last_game) {
+    if (mode.last_game_at) {
         msg += ` [last played ${formatAge(mode.last_game_at)} ago]`;
     }
 
