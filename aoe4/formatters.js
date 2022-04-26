@@ -165,7 +165,7 @@ class NightbotDefaultFormatter {
 
     if (winrate.timespan) {
       msg += ` in the last ${formatDuration(winrate.timespan)}`;
-    } else if (winrate.gap) {
+    } else if (winrate.idletime) {
       msg += ` in their last session`;
     }
 

@@ -18,12 +18,12 @@ function parseTimespan(number, suffix) {
   return null;
 }
 
-// gap is the session idle time, defaults to 4 * 3600 seconds. timespan overrides that and is an absolute interval in seconds.
-async function getPlayerWinRate(player, opponent, gap, timespan) {
+// idletime is the session idle time, defaults to 4 * 3600 seconds. timespan overrides that and is an absolute interval in seconds.
+async function getPlayerWinRate(player, opponent, idletime, timespan) {
   const playerProfileIds = Array.isArray(player) ? player.map(p => p.profile_id) : [ player.profile_id ];
 
-  if (gap === undefined) {
-    gap = 4 * 3600;
+  if (idletime === undefined) {
+    idletime = 4 * 3600;
   }
 
   // Get the games iterator, which will fetch new pages as needed and multiplex profiles.
@@ -34,7 +34,7 @@ async function getPlayerWinRate(player, opponent, gap, timespan) {
     player:  Array.isArray(player) ? player[0] : player,
     opponent: opponent,
     timespan: timespan,
-    gap: gap,
+    idletime: idletime,
     games_count: 0,
     wins_count: 0,
     losses_count: 0,
@@ -54,7 +54,7 @@ async function getPlayerWinRate(player, opponent, gap, timespan) {
     var gametime = Date.parse(game.started_at);
 
     if (!timespan) {
-      if (lastgame && (lastgame - gametime) > gap * 1000)
+      if (lastgame && (lastgame - gametime) > idletime * 1000)
         break;
     } else {
       if ((now - gametime) > timespan * 1000)
@@ -213,7 +213,7 @@ async function handleAoe4WinRate(req, res) {
   const leaderboard = req.query.leaderboard;
   const format = req.query.format;
   var timespan = req.query.timespan !== undefined ? parseInt(req.query.timespan) : null;
-  const gap = req.query.gap !== undefined ? parseInt(req.query.gap) : 4;
+  const idletime = req.query.idletime !== undefined ? parseInt(req.query.idletime) : 4;
 
   const formatter = getFormatter(format);
 
@@ -263,7 +263,7 @@ async function handleAoe4WinRate(req, res) {
   }
 
   if (player.length && player[0]) {
-    const winrate = await getPlayerWinRate(player, opponent, gap * 3600, timespan * 3600);
+    const winrate = await getPlayerWinRate(player, opponent, idletime * 3600, timespan * 3600);
     if (winrate) {
       winrate.player = player[0];
       if (opponent) winrate.opponent = opponent;

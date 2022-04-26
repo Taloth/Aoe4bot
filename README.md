@@ -55,9 +55,9 @@ You're free to Woolooloo if you can pull it off, KEKW
 **Parameters:**   
 - `player` optionally specifies the comma separated profile ids of the default player(s) if query is empty. (If multiple, the matches of both accounts will be grouped before being evaluated)
 - `leaderboard` used to search the player. (Note: match isn't filtered for the particular leaderboard)
-- `query` can be empty, a rank `#1` or a player name. Additionally can be `vs abc` (default vs abs) and `abc vs def`. Supports a `last x hours/days/months` suffix to override t he `timespan` parameter.
+- `query` can be empty, a rank `#1` or a player name. Additionally can be `vs abc` (default vs abs) and `abc vs def`. Supports a `last x hours/days/months` suffix to override the `timespan` parameter.
 - `timespan` instead of detecting sessions, use the specified interval in hours. 
-- `gap` specifies the idle time in hours between games, defaults to 4h. Ignored when `timespan` is not empty.
+- `idletime` specifies the idle time in hours between games, defaults to 4h. Ignored when `timespan` is not empty.
 
 **Examples:**   
 - `!winrate` -> Liquid.DeMusliM played 4 games (3-0 | 100%) lasting 1 hour, 29 min ago
