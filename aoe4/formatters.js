@@ -156,15 +156,25 @@ class NightbotDefaultFormatter {
     }
 
     if (winrate.duration) {
-      msg +=  ` lasting ${formatDuration(winrate.duration)}`;
+      msg += ` totaling ${formatDuration(winrate.duration)}`;
     }
 
     if (winrate.opponent) {
       msg += ` vs ${winrate.opponent.name}`;
     }
 
-    if (winrate.last_game_at) {
-      msg += `, ${formatAge(winrate.last_game_at)} ago`;
+    if (winrate.timespan) {
+      msg += ` in the last ${formatDuration(winrate.timespan)}`;
+    } else if (winrate.idletime) {
+      msg += ` in their last session`;
+    }
+
+    if (winrate.pending_games == 1) {
+      msg += ` [game ongoing since ${formatAge(winrate.pending_game_started_at)} ago]`;
+    } else if (winrate.pending_games > 1) {
+      msg += ` [${winrate.pending_games} games ongoing since ${formatAge(winrate.pending_game_started_at)} ago]`;
+    } else if (winrate.last_game_at) {
+      msg += ` [last played ${formatAge(winrate.last_game_at)} ago]`;
     }
 
     res.send(msg);

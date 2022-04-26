@@ -153,6 +153,62 @@ async function getPlayerGames(profileId) {
   return null;
 }
 
+async function fetchPlayerGames(profileId, page) {
+  const json = await fetchAOE4World(`/players/${profileId}/games`, { page: page });
+
+  if (json) {
+    json.profile_id = profileId;
+    json.index = 0;
+  }
+
+  return json;
+}
+
+async function* enumPlayerGames(profileIds) {
+  if (!Array.isArray(profileIds))
+    profileIds = [ profileIds ];
+  if (profileIds.filter(p => !Number.isInteger(p)).length) return null;
+
+  // Fetch the initial page of each playerId
+  var states = await Promise.all(profileIds.map(p => fetchPlayerGames(p, 1)));
+
+  while (true) {
+    // Check which states to fetch new pages for
+    for (var i = 0; i < states.length; i++) {
+      var s = states[i];
+      if (s.index >= s.games.length && (s.offset + s.index) < s.total_count) {
+        states[i] = await fetchPlayerGames(s.profile_id, s.page + 1);
+      }
+    }
+
+    // Find out which state has the earliest game
+    var firstState = states.reduce((prev, s) => {
+      if (s.index >= s.games.length) {
+        return prev;
+      }
+
+      if (!prev) {
+        return s;
+      }
+
+      if (Date.parse(prev.games[prev.index].started_at) < Date.parse(s.games[s.index].started_at)) {
+        return s;
+      }
+
+      return prev;
+    }, null);
+
+    // Break if we don't have any games left
+    if (!firstState)
+      break;
+
+    // Return one game
+    yield firstState.games[firstState.index];
+
+    firstState.index += 1;
+  }
+}
+
 async function getLastMatch(profileId) {
   if (!Number.isInteger(profileId)) return null;
 
@@ -175,5 +231,6 @@ module.exports = {
   findPlayerByQuery,
   getPlayer,
   getPlayerGames,
+  enumPlayerGames,
   getLastMatch
 };
