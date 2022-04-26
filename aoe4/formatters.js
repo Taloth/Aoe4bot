@@ -98,8 +98,12 @@ class NightbotDefaultFormatter {
       msg = `==> ${match.map} <==`;
       if (!match.ongoing) {
         const  team1W = match.teams[0].filter(p => p.result == 'win').length;
+        const  team1L = match.teams[0].filter(p => p.result == 'loss').length;
         const  team2W = match.teams[1].filter(p => p.result == 'win').length;
-        msg = `[${team1W?'W':'L'}] ${msg} [${team2W?'W':'L'}]`;
+        const  team2L = match.teams[1].filter(p => p.result == 'loss').length;
+        if (team1W || team2W) {
+          msg = `[${team1W?'W':team1L?'L':'?'}] ${msg} [${team2W?'W':team2L?'L':'?'}]`;
+        }
       }
       msg = `${teamA} ${msg} ${teamB}`;
     } else if (numPlayers == numTeams) {
