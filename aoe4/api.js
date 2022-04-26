@@ -87,7 +87,7 @@ async function findPlayerByRank(rank, leaderboard) {
     };
   }
 
-  const page = 1 + Math.floor(rank / 50);
+  const page = 1 + Math.floor((rank - 1) / 50);
   const json = await fetchAOE4World(`/leaderboards/${leaderboard}`, { page: page });
 
   if (json && json.count && json.players) {
