@@ -4,17 +4,22 @@ function fetchAOE4World(path, params) {
   var querystr = new URLSearchParams(params).toString();
   var url = 'https://aoe4world.com/api/v0' + path + (querystr.length ? '?' + querystr : '');
 
-  console.log(`Req: ${url}`);
+  var startTime = performance.now();
+  console.log(`  Req: ${url}`);
   return fetch(url)
     .then((resp) => {
-      console.log(`Res: ${url} (${resp.status})`);
+      const endTime = performance.now();
+      const elapsed = endTime - startTime;
+      console.log(`  Res: ${url} (${resp.status}, ${elapsed.toFixed(0)} msec)`);
       // 404 can happen for /games/last
       if (resp.status == 404)
         return null;
       return resp.json();
     })
     .catch((err) => {
-      console.log(`Err: ${url}: ${err}`)
+      const endTime = performance.now();
+      const elapsed = endTime - startTime;
+      console.log(`  Err: ${url}: ${err}, ${elapsed.toFixed(0)} msec`);
       return null;
     });
 }
@@ -31,7 +36,8 @@ async function findPlayerByName(name, leaderboard) {
     return null;
 
   if (leaderboard) {
-    const json = await fetchAOE4World('/players/autocomplete', { query: name, leaderboard: leaderboard });
+    //const json = await fetchAOE4World('/players/autocomplete', { query: name, leaderboard: leaderboard });
+    const json = await fetchAOE4World(`/leaderboards/${leaderboard}`, { query: name });
     if (json && json.count && json.players) {
       const player = json.players[0];
 

@@ -31,11 +31,26 @@ function wrapError(handler) {
   }
 }
 
+function logRequest(req, res, next)
+{
+  const nightbotUser = new URLSearchParams(req.headers['nightbot-user'] || '').get('displayName');
+  const nightbotChannel = new URLSearchParams(req.headers['nightbot-channel'] || '').get('displayName');
+  const by = nightbotChannel ? ` [by ${nightbotUser}@${nightbotChannel}]` : '';
+  const startTime = performance.now();
+  console.log(`Api Req: ${req.url}${by}`);
+  res.once('finish', () => {
+    const endTime = performance.now();
+    const elapsed = endTime - startTime;
+    console.log(`Api Res: ${req.url} (${res.statusCode}, ${elapsed.toFixed(0)} msec)`);
+  });
+  next();
+}
 
 async function run() {
   const app = express()
     .use(express.static(path.join(__dirname, 'public')))
     .use(express.json())
+    .use(logRequest)
     .set('views', path.join(__dirname, 'views'))
     .set('view engine', 'ejs')
     .get('/api/aoe4/match', wrapError(handleAoe4Match))
