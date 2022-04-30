@@ -94,17 +94,18 @@ async function findPlayerByRank(rank, leaderboard) {
     const player = json.players.filter(v => v.rank == rank)[0];
     if (player) {
       // Restructure to standard format to make things easier for formatter
-      player.modes = {};
-      player.modes[leaderboard] = {
-        "rating": player.rating,
-        "rank": player.rank,
-        "streak": player.streak,
-        "games_count": player.games_count,
-        "wins_count": player.wins_count,
-        "losses_count": player.losses_count,
-        "last_game_at": player.last_game_at,
-        "win_rate": player.win_rate,
-        "rank_level": player.rank_level
+      player.modes = {
+        [leaderboard]: {
+          "rating": player.rating,
+          "rank": player.rank,
+          "streak": player.streak,
+          "games_count": player.games_count,
+          "wins_count": player.wins_count,
+          "losses_count": player.losses_count,
+          "last_game_at": player.last_game_at,
+          "win_rate": player.win_rate,
+          "rank_level": player.rank_level
+        }
       };
       return player;
     }
@@ -153,31 +154,40 @@ async function getPlayerGames(profileId) {
   return null;
 }
 
-async function fetchPlayerGames(profileId, page) {
-  const json = await fetchAOE4World(`/players/${profileId}/games`, { page: page });
+async function fetchPlayerGames(profileId, opponentProfileId, since, page) {
+  const options = { page: page };
+  if (opponentProfileId) {
+    options.opponent_profile_id = opponentProfileId;
+  }
+  if (since) {
+    options.since = new Date(since).toISOString();
+  }
+  const json = await fetchAOE4World(`/players/${profileId}/games`, options);
 
   if (json) {
     json.profile_id = profileId;
+    json.opponent_profile_id = opponentProfileId;
     json.index = 0;
   }
 
   return json;
 }
 
-async function* enumPlayerGames(profileIds) {
+async function* enumPlayerGames(profileIds, opponentProfileId, since) {
   if (!Array.isArray(profileIds))
     profileIds = [ profileIds ];
   if (profileIds.filter(p => !Number.isInteger(p)).length) return null;
+  if (opponentProfileId && !Number.isInteger(opponentProfileId)) return null;
 
   // Fetch the initial page of each playerId
-  var states = await Promise.all(profileIds.map(p => fetchPlayerGames(p, 1)));
+  var states = await Promise.all(profileIds.map(p => fetchPlayerGames(p, opponentProfileId, since, 1)));
 
   while (true) {
     // Check which states to fetch new pages for
     for (var i = 0; i < states.length; i++) {
       var s = states[i];
       if (s.index >= s.games.length && (s.offset + s.index) < s.total_count) {
-        states[i] = await fetchPlayerGames(s.profile_id, s.page + 1);
+        states[i] = await fetchPlayerGames(s.profile_id, opponentProfileId, since, s.page + 1);
       }
     }
 

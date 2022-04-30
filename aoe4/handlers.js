@@ -21,13 +21,16 @@ function parseTimespan(number, suffix) {
 // idletime is the session idle time, defaults to 4 * 3600 seconds. timespan overrides that and is an absolute interval in seconds.
 async function getPlayerWinRate(player, opponent, idletime, timespan) {
   const playerProfileIds = Array.isArray(player) ? player.map(p => p.profile_id) : [ player.profile_id ];
+  const opponentProfileId = opponent?.profile_id;
+  const since = timespan ? Date.now() - timespan * 1000 : null;
 
   if (idletime === undefined) {
     idletime = 4 * 3600;
   }
 
   // Get the games iterator, which will fetch new pages as needed and multiplex profiles.
-  var gamesEnumerator = await aoe4.enumPlayerGames(playerProfileIds);
+  // Note, only filter by opponent if we had a start date, otherwise we need all games to be able to detect session start.
+  var gamesEnumerator = await aoe4.enumPlayerGames(playerProfileIds, since ? opponentProfileId : null, since);
   var games = await gamesEnumerator;
 
   const stats = {
