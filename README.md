@@ -1,7 +1,7 @@
 
 ## Introduction
 
-Simple server side wrapper to simplify nightbot commands and query aoe4world.com api.
+Server side api to simplify nightbot commands and query aoe4world.com api.
 
 ## License
 
@@ -55,9 +55,16 @@ You're free to Woolooloo if you can pull it off, KEKW
 **Parameters:**   
 - `player` optionally specifies the comma separated profile ids of the default player(s) if query is empty. (If multiple, the matches of both accounts will be grouped before being evaluated)
 - `leaderboard` used to search the player. (Note: match isn't filtered for the particular leaderboard)
-- `query` can be empty, a rank `#1` or a player name. Additionally can be `vs abc` (default vs abs) and `abc vs def`. Supports a `last x hours/days/months` suffix to override the `timespan` parameter.
+- `query` can be empty, a rank `#1` or a player name. Additionally can be `vs abc` (default vs abs) and `abc vs def`. Supports a `last x hours/days/months` suffix to override the `timespan` parameter. See **Query Format** for more.
 - `timespan` instead of detecting sessions, use the specified interval in hours. 
 - `idletime` specifies the idle time in hours between games, defaults to 4h. Ignored when `timespan` is not empty.
+
+**Query Format:**
+`[versus] [with Civ] [on Map] [last x days]`
+- [versus] = 'Player' / 'Player vs OtherPlayer' / 'vs OtherPlayer' and is optional if `player` query parameter is specified.
+- [with Civ] = Only counts games where Player played with the specified civ. (Example: `with HRE`)
+- [on Map}] = Only counts games on specified map. (example: `on Dry Arabia`)
+- [last x days] = Only counts games in specified time period. (h/d/w/m/y) 
 
 **Examples:**   
 - `!winrate` -> Liquid.DeMusliM played 4 games (3-0 | 100%) lasting 1 hour, 29 min ago
@@ -66,3 +73,4 @@ You're free to Woolooloo if you can pull it off, KEKW
 - `!winrate Don Artie vs Szalami` -> Don Artie played 3 games (3-0 | 100%) lasting 57 min vs Szalami1, 8 hours ago
 - `!winrate Don Artie vs PilotElf` -> Don Artie played 2 games (1-1 | 50%) lasting 31 min vs PilotElf8750880, 11 hours ago
 - `!winrate Beastyqt vs TheViper last 5 days` -> Beastyqt played 4 games (3-1 | 75%) lasting 1 hour vs GL.TheViper in the last 5 days, 2 days ago
+- `!winrate on Danube River last 4w`

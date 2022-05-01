@@ -1,3 +1,4 @@
+const metadata = require('./metadata');
 
 function formatLeaderboard(leaderboard) {
   if (leaderboard.startsWith('rm_')) {
@@ -41,21 +42,10 @@ function formatAge(date) {
 class NightbotDefaultFormatter {
   constructor(format) {
     this.format = format;
-    // This needs to be updated when new civs get added
-    this.civNames = {
-      'mongols': 'Mongols',
-      'rus': 'Rus',
-      'english': 'English',
-      'french': 'French',
-      'holy_roman_empire': 'HRE',
-      'abbasid_dynasty': 'Abbasid',
-      'chinese': 'Chinese',
-      'delhi_sultanate': 'Delhi'
-    };
   }
 
   formatCiv(civ) {
-    return this.civNames[civ] || civ;
+    return metadata.parseCiv(civ).shortName || civ;
   }
 
   formatMatchPlayer(match, player, short) {
@@ -119,6 +109,7 @@ class NightbotDefaultFormatter {
         msg += ` [played ${formatAge(match.started_at)} ago]`;
     }
 
+    console.log(`Api Out: ${msg}`);
     res.send(msg);
   }
 
@@ -149,6 +140,7 @@ class NightbotDefaultFormatter {
         msg += ` [last played ${formatAge(mode.last_game_at)} ago]`;
     }
 
+    console.log(`Api Out: ${msg}`);
     res.send(msg);
   }
 
@@ -161,6 +153,14 @@ class NightbotDefaultFormatter {
 
     if (winrate.duration) {
       msg += ` totaling ${formatDuration(winrate.duration)}`;
+    }
+
+    if (winrate.civ) {
+      msg += ` with ${metadata.parseCiv(winrate.civ).shortName}`;
+    }
+
+    if (winrate.map) {
+      msg += ` on ${winrate.map}`;
     }
 
     if (winrate.opponent) {
@@ -181,6 +181,7 @@ class NightbotDefaultFormatter {
       msg += ` [last played ${formatAge(winrate.last_game_at)} ago]`;
     }
 
+    console.log(`Api Out: ${msg}`);
     res.send(msg);
   }
 }

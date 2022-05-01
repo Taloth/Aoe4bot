@@ -1,5 +1,6 @@
 
 const aoe4 = require('./api');
+const metadata = require('./metadata');
 const { getFormatter } = require('./formatters');
 
 function parseTimespan(number, suffix) {
@@ -7,7 +8,7 @@ function parseTimespan(number, suffix) {
     return number;
   } else if (suffix.match(/^(d|day|days)$/)) {
     return number * 24;
-  } else if (suffix.match(/^(w|week|weeks)$/)) {
+  } else if (suffix.match(/^(w|wk|wks|week|weeks)$/)) {
     return number * 24 * 7;
   } else if (suffix.match(/^(m|month|months)$/)) {
     return number * 24 * 30;  // Approx. don't make me do calendar checks
@@ -19,14 +20,13 @@ function parseTimespan(number, suffix) {
 }
 
 // idletime is the session idle time, defaults to 4 * 3600 seconds. timespan overrides that and is an absolute interval in seconds.
-async function getPlayerWinRate(player, opponent, idletime, timespan) {
+async function getPlayerWinRate(player, options) {
+  let { opponent, map, civ, idletime, timespan, includeTeamGames } = (options || {
+    idletime: 4 * 3600,
+    includeTeamGames: false });
   const playerProfileIds = Array.isArray(player) ? player.map(p => p.profile_id) : [ player.profile_id ];
   const opponentProfileId = opponent?.profile_id;
   const since = timespan ? Date.now() - timespan * 1000 : null;
-
-  if (idletime === undefined) {
-    idletime = 4 * 3600;
-  }
 
   // Get the games iterator, which will fetch new pages as needed and multiplex profiles.
   // Note, only filter by opponent if we had a start date, otherwise we need all games to be able to detect session start.
@@ -66,6 +66,12 @@ async function getPlayerWinRate(player, opponent, idletime, timespan) {
 
     lastgame = gametime;
 
+    // Ignore any 2v2 games in the winrate calculation
+    const numPlayers = game.teams.flat().length;
+    if (numPlayers > 2 && !includeTeamGames) {
+      continue;
+    }
+
     var playerState = null;
     var opponentState = null;
 
@@ -98,6 +104,14 @@ async function getPlayerWinRate(player, opponent, idletime, timespan) {
         pendingGames += 1;
       }
 
+      continue;
+    }
+
+    if (civ && playerState.civilization != civ) {
+      continue;
+    }
+
+    if (map && game.map != map) {
       continue;
     }
 
@@ -227,16 +241,43 @@ async function handleAoe4WinRate(req, res) {
 
   var player = null;
   var opponent = null;
-  if (query.length) {
+  var civ = null;
+  var map = null;
+  var match = null;
+  if (query.length && (match = query.match(/^(?:(.+?) )?last (\d+) ?([a-z]+)$/))) {
     // Handle the 'last x days' suffix
-    var timespanMatch = query.match(/^(?:(.+?) )?last (\d+) ?([a-z]+)/);
-    if (timespanMatch) {
-      query = timespanMatch[1] || '';
-      timespan = parseTimespan(timespanMatch[2], timespanMatch[3]);
-      if (timespan === null) {
-        formatter.sendError('Invalid timespan specified', res);
-        return;
-      }
+    query = match[1] || '';
+    timespan = parseTimespan(match[2], match[3]);
+    if (timespan === null) {
+      formatter.sendError('Invalid timespan specified', res);
+      return;
+    }
+  }
+  if (query.length && (match = query.match(/^(?:(.+?) )?last (session|season)$/))) {
+    // Handle the 'last session/season' suffix
+    query = match[1] || '';
+    if (match[2] == 'session') {
+      timespan = null;
+    } else if (match[2] == 'season') {
+      timespan = (Date.now() - metadata.seasons[metadata.seasons.length - 1].started_at) / 1000 / 3600;
+    }
+  }
+  if (query.length && (match = query.match(/^(?:(.+?) )?on (\w+)$/))) {
+    // Handle the 'on [map]' suffix
+    query = match[1] || '';
+    map = metadata.parseMap(match[2])?.name;
+    if (map == null) {
+      formatter.sendError('Invalid map specified', res);
+      return;
+    }
+  }
+  if (query.length && (match = query.match(/^(?:(.+?) )?with (\w+)$/))) {
+    // Handle the 'with [civ]' suffix
+    query = match[1] || '';
+    civ = metadata.parseCiv(match[2])?.id;
+    if (civ == null) {
+      formatter.sendError('Invalid civ specified', res);
+      return;
     }
   }
   if (query.length) {
@@ -266,10 +307,12 @@ async function handleAoe4WinRate(req, res) {
   }
 
   if (player.length && player[0]) {
-    const winrate = await getPlayerWinRate(player, opponent, idletime * 3600, timespan * 3600);
+    const winrate = await getPlayerWinRate(player, { opponent, civ, map, idletime: idletime * 3600, timespan: timespan * 3600 });
     if (winrate) {
       winrate.player = player[0];
       if (opponent) winrate.opponent = opponent;
+      winrate.civ = civ;
+      winrate.map = map;
       formatter.sendWinRate(winrate, res);
     } else {
       formatter.sendError('No winrate available', res);
