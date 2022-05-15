@@ -39,9 +39,21 @@ async function findPlayerByName(name, leaderboard) {
   if (leaderboard && !isValidLeaderboard(leaderboard))
     return null;
 
+  const options = { };
+
+  const matchExact = name.match(/^'(.*)'$/);
+  if (matchExact) {
+    name = matchExact[1];
+
+    options.query = name;
+    options.exact = true;
+  } else {
+    options.query = name;
+  }
+
   if (leaderboard) {
     //const json = await fetchAOE4World('/players/autocomplete', { query: name, leaderboard: leaderboard });
-    const json = await fetchAOE4World(`/leaderboards/${leaderboard}`, { query: name });
+    const json = await fetchAOE4World(`/leaderboards/${leaderboard}`, options);
     if (json && json.count && json.players) {
       const player = json.players[0];
 
@@ -61,7 +73,7 @@ async function findPlayerByName(name, leaderboard) {
       return player;
     }
   } else {
-    const json = await fetchAOE4World('/players/search', { query: name });
+    const json = await fetchAOE4World('/players/search', options);
     if (json && json.count && json.players) {
       const player = json.players[0];
 
