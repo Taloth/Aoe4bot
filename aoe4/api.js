@@ -14,6 +14,10 @@ function fetchAOE4World(path, params) {
       // 404 can happen for /games/last
       if (resp.status == 404)
         return null;
+      if (resp.status != 200) {
+        console.log(`  Err: ${url}: Invalid response`);
+        return null;
+      }
       return resp.json();
     })
     .catch((err) => {

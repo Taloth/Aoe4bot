@@ -155,21 +155,23 @@ class NightbotDefaultFormatter {
       msg += ` totaling ${formatDuration(winrate.duration)}`;
     }
 
-    if (winrate.civ) {
-      msg += ` with ${metadata.parseCiv(winrate.civ).shortName}`;
+    if (winrate.options.civ) {
+      msg += ` with ${metadata.parseCiv(winrate.options.civ).shortName}`;
     }
 
-    if (winrate.map) {
-      msg += ` on ${winrate.map}`;
+    if (winrate.options.map) {
+      msg += ` on ${winrate.options.map}`;
     }
 
-    if (winrate.opponent) {
-      msg += ` vs ${winrate.opponent.name}`;
+    if (winrate.options.opponent) {
+      msg += ` vs ${winrate.options.opponent.name}`;
     }
 
-    if (winrate.timespan) {
-      msg += ` in the last ${formatDuration(winrate.timespan)}`;
-    } else if (winrate.idletime) {
+    if (winrate.options.season) {
+      msg += ` in season ${winrate.options.season.number}`;
+    } else if (winrate.options.timespan) {
+      msg += ` in the last ${formatDuration(winrate.options.timespan)}`;
+    } else if (winrate.options.idletime) {
       msg += ` in their last session`;
     }
 

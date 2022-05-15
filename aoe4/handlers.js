@@ -229,8 +229,24 @@ async function handleAoe4WinRate(req, res) {
   var query = req.query.query || '';
   const leaderboard = req.query.leaderboard;
   const format = req.query.format;
-  var timespan = req.query.timespan !== undefined ? parseInt(req.query.timespan) : null;
-  const idletime = req.query.idletime !== undefined ? parseInt(req.query.idletime) : 4;
+  let options = {
+    opponent: null,
+    civ: null,
+    map: null,
+    timespan: null,
+    idletime: (4 * 3600)
+  };
+
+  if (req.query.timespan === 'season') {
+    options.season = metadata.seasons[metadata.seasons.length - 1];
+    options.timespan = (Date.now() - options.season.started_at) / 1000;
+  } else if (req.query.timespan !== undefined) {
+    options.timespan = parseInt(req.query.timespan) * 3600;
+  }
+
+  if (req.query.idletime !== undefined) {
+    options.idletime = parseInt(req.query.idletime) * 3600;
+  }
 
   const formatter = getFormatter(format);
 
@@ -240,15 +256,12 @@ async function handleAoe4WinRate(req, res) {
   }
 
   var player = null;
-  var opponent = null;
-  var civ = null;
-  var map = null;
   var match = null;
   if (query.length && (match = query.match(/^(?:(.+?) )?last (\d+) ?([a-z]+)$/))) {
     // Handle the 'last x days' suffix
     query = match[1] || '';
-    timespan = parseTimespan(match[2], match[3]);
-    if (timespan === null) {
+    options.timespan = parseTimespan(match[2], match[3]) * 3600;
+    if (options.timespan === null) {
       formatter.sendError('Invalid timespan specified', res);
       return;
     }
@@ -257,16 +270,19 @@ async function handleAoe4WinRate(req, res) {
     // Handle the 'last session/season' suffix
     query = match[1] || '';
     if (match[2] == 'session') {
-      timespan = null;
+      // Clear url query parameter value
+      options.season = null;
+      options.timespan = null;
     } else if (match[2] == 'season') {
-      timespan = (Date.now() - metadata.seasons[metadata.seasons.length - 1].started_at) / 1000 / 3600;
+      options.season = metadata.seasons[metadata.seasons.length - 1];
+      options.timespan = (Date.now() - options.season.started_at) / 1000;
     }
   }
   if (query.length && (match = query.match(/^(?:(.+?) )?on (\w+)$/))) {
     // Handle the 'on [map]' suffix
     query = match[1] || '';
-    map = metadata.parseMap(match[2])?.name;
-    if (map == null) {
+    options.map = metadata.parseMap(match[2])?.name;
+    if (options.map == null) {
       formatter.sendError('Invalid map specified', res);
       return;
     }
@@ -274,8 +290,8 @@ async function handleAoe4WinRate(req, res) {
   if (query.length && (match = query.match(/^(?:(.+?) )?with (\w+)$/))) {
     // Handle the 'with [civ]' suffix
     query = match[1] || '';
-    civ = metadata.parseCiv(match[2])?.id;
-    if (civ == null) {
+    options.civ = metadata.parseCiv(match[2])?.id;
+    if (options.civ == null) {
       formatter.sendError('Invalid civ specified', res);
       return;
     }
@@ -292,8 +308,8 @@ async function handleAoe4WinRate(req, res) {
         const profileIds = req.query.player.split(',').map(v => parseInt(v));
         player = [ await aoe4.getPlayer(profileIds[0]), ...profileIds.slice(1).map(p => { return { profile_id: p }}) ];
       }
-      opponent = await aoe4.findPlayerByQuery(versus[1], leaderboard);
-      if (!opponent) {
+      options.opponent = await aoe4.findPlayerByQuery(versus[1], leaderboard);
+      if (!options.opponent) {
         formatter.sendError('No player found for opponent', res);
         return;
       }
@@ -307,12 +323,10 @@ async function handleAoe4WinRate(req, res) {
   }
 
   if (player.length && player[0]) {
-    const winrate = await getPlayerWinRate(player, { opponent, civ, map, idletime: idletime * 3600, timespan: timespan * 3600 });
+    const winrate = await getPlayerWinRate(player, options);
     if (winrate) {
       winrate.player = player[0];
-      if (opponent) winrate.opponent = opponent;
-      winrate.civ = civ;
-      winrate.map = map;
+      winrate.options = options;
       formatter.sendWinRate(winrate, res);
     } else {
       formatter.sendError('No winrate available', res);
