@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const { playerAlts } = require('./players');
 
 function fetchAOE4World(path, params) {
   var querystr = new URLSearchParams(params).toString();
@@ -145,6 +146,28 @@ async function findPlayerByQuery(query, leaderboard) {
   }
 }
 
+async function findPlayersByQuery(query, leaderboard) {
+  const result = [];
+  if (query.endsWith('*')) {
+    const player = await findPlayerByQuery(query.substring(0, query.length - 1), leaderboard);
+    if (player) {
+      result.push(player);
+      const alt_profile_ids = [...(player.alt_profile_ids || []), ...(playerAlts[player.profile_id] || []) ];
+      if (alt_profile_ids) {
+        const altPlayers = await Promise.all(alt_profile_ids.map(id => getPlayer(id)));
+        result.push(...altPlayers);
+      }
+    }
+  } else {
+    const player = await findPlayerByQuery(query, leaderboard);
+    if (player) {
+      result.push(player);
+    }
+  }
+
+  return result;
+}
+
 async function getPlayer(profileId) {
   if (!Number.isInteger(profileId)) return null;
 
@@ -195,21 +218,34 @@ async function fetchPlayerGames(profileId, opponentProfileId, since, page) {
   return json;
 }
 
-async function* enumPlayerGames(profileIds, opponentProfileId, since) {
+async function* enumPlayerGames(profileIds, opponentProfileIds, since) {
   if (!Array.isArray(profileIds))
     profileIds = [ profileIds ];
   if (profileIds.filter(p => !Number.isInteger(p)).length) return null;
-  if (opponentProfileId && !Number.isInteger(opponentProfileId)) return null;
+  if (!opponentProfileIds)
+    opponentProfileIds = [];
+  else if (!Array.isArray(opponentProfileIds))
+    opponentProfileIds = [ opponentProfileIds ];
+  if (opponentProfileIds.filter(p => !Number.isInteger(p)).length) return null;
+
+  // Prepare all states
+  var states = [];
+  for (const profile_id of profileIds) {
+    if (opponentProfileIds[0])
+      states.push(...opponentProfileIds.map(o => ({ profile_id: profile_id, opponent_profile_id: o, page: 0 })));
+    else
+      states.push({ profile_id: profile_id, page: 0 });
+  }
 
   // Fetch the initial page of each playerId
-  var states = await Promise.all(profileIds.map(p => fetchPlayerGames(p, opponentProfileId, since, 1)));
+  var states = await Promise.all(states.map(s => fetchPlayerGames(s.profile_id, s.opponent_profile_id, since, s.page + 1)));
 
   while (true) {
     // Check which states to fetch new pages for
     for (var i = 0; i < states.length; i++) {
       var s = states[i];
       if (s.index >= s.games.length && (s.offset + s.index) < s.total_count) {
-        states[i] = await fetchPlayerGames(s.profile_id, opponentProfileId, since, s.page + 1);
+        states[i] = await fetchPlayerGames(s.profile_id, s.opponent_profile_id, since, s.page + 1);
       }
     }
 
@@ -261,6 +297,7 @@ module.exports = {
   findPlayerByName,
   findPlayerByRank,
   findPlayerByQuery,
+  findPlayersByQuery,
   getPlayer,
   getPlayerGames,
   enumPlayerGames,

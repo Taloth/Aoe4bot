@@ -163,8 +163,8 @@ class NightbotDefaultFormatter {
       msg += ` on ${winrate.options.map}`;
     }
 
-    if (winrate.options.opponent) {
-      msg += ` vs ${winrate.options.opponent.name}`;
+    if (winrate.opponent) {
+      msg += ` vs ${winrate.opponent.name}`;
     }
 
     if (winrate.options.season) {

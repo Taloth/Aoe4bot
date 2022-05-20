@@ -20,22 +20,20 @@ function parseTimespan(number, suffix) {
 }
 
 // idletime is the session idle time, defaults to 4 * 3600 seconds. timespan overrides that and is an absolute interval in seconds.
-async function getPlayerWinRate(player, options) {
-  let { opponent, map, civ, idletime, timespan, includeTeamGames } = (options || {
+async function getPlayerWinRate(playerProfileIds, opponentProfileIds, options) {
+  let { map, civ, idletime, timespan, includeTeamGames } = (options || {
     idletime: 4 * 3600,
     includeTeamGames: false });
-  const playerProfileIds = Array.isArray(player) ? player.map(p => p.profile_id) : [ player.profile_id ];
-  const opponentProfileId = opponent?.profile_id;
   const since = timespan ? Date.now() - timespan * 1000 : null;
 
   // Get the games iterator, which will fetch new pages as needed and multiplex profiles.
   // Note, only filter by opponent if we had a start date, otherwise we need all games to be able to detect session start.
-  var gamesEnumerator = await aoe4.enumPlayerGames(playerProfileIds, since ? opponentProfileId : null, since);
+  var gamesEnumerator = await aoe4.enumPlayerGames(playerProfileIds, since ? opponentProfileIds : null, since);
   var games = await gamesEnumerator;
 
   const stats = {
-    player:  Array.isArray(player) ? player[0] : player,
-    opponent: opponent,
+    player_profile_ids: playerProfileIds,
+    opponent_profile_Ids: opponentProfileIds,
     timespan: timespan,
     idletime: idletime,
     games_count: 0,
@@ -77,7 +75,7 @@ async function getPlayerWinRate(player, options) {
 
     for (const team of game.teams) {
       const teamPlayer = team.filter(p => playerProfileIds.includes(p.player.profile_id))[0]?.player;
-      const teamOpponent = opponent ? team.filter(p => p.player.profile_id == opponent.profile_id)[0]?.player : null;
+      const teamOpponent = opponentProfileIds ? team.filter(p => opponentProfileIds.includes(p.player.profile_id))[0]?.player : null;
 
       if (teamPlayer)
         playerState = teamPlayer;
@@ -89,7 +87,7 @@ async function getPlayerWinRate(player, options) {
       continue;
     }
 
-    if (opponent && !opponentState) {
+    if (opponentProfileIds && !opponentState) {
       continue;
     }
 
@@ -154,12 +152,9 @@ async function handleAoe4Match(req, res) {
   const format = req.query.format;
   const players = [];
   if (query.length) {
-    const player = await aoe4.findPlayerByQuery(query, leaderboard || 'rm_1v1');
-    if (player && player.profile_id) {
-      players.push(player.profile_id);
-    }
+    players.push(...await aoe4.findPlayersByQuery(query, leaderboard || 'rm_1v1'));
   } else if (req.query.player) {
-    players.push(...req.query.player.split(',').map(v => parseInt(v)));
+    players.push(...req.query.player.split(',').map(v => ({ profile_id: parseInt(v) })));
   }
 
   const formatter = getFormatter(format);
@@ -171,7 +166,7 @@ async function handleAoe4Match(req, res) {
 
   if (players.length) {
     // Get last match for all player IDs
-    const matches = await Promise.all(players.map(p => aoe4.getLastMatch(p, leaderboard)));
+    const matches = await Promise.all(players.map(p => aoe4.getLastMatch(p.profile_id, leaderboard)));
 
     // Get the most recent one
     const match = matches.filter(v => v !== null).sort((a,b) => Date.parse(b.started_at) - Date.parse(a.started_at))[0];
@@ -179,7 +174,8 @@ async function handleAoe4Match(req, res) {
     if (match) {
       formatter.sendMatch(match, res);
     } else {
-      const player = await aoe4.getPlayer(players[0]);
+      // Get player details if we don't have it already
+      const player = players[0].name ? players[0] : await aoe4.getPlayer(players[0]);
       formatter.sendError(`"${player.name}" has no matches`, res);
     }
   } else {
@@ -200,7 +196,10 @@ async function handleAoe4Rank(req, res) {
   const playerId = parseInt(req.query.player || '0');
   var player = null;
   if (query.length) {
-    player = await aoe4.findPlayerByQuery(query, leaderboard);
+    const players = await aoe4.findPlayersByQuery(query, leaderboard);
+    // query might return multiple alts, get the highest ranked one.
+    players.sort((a, b) => a.modes[leaderboard].rank - b.modes[leaderboard].rank);
+    player = players[0];
   } else if (req.query.player) {
     player = await aoe4.getPlayer(playerId);
   }
@@ -255,7 +254,8 @@ async function handleAoe4WinRate(req, res) {
     return;
   }
 
-  var player = null;
+  var players = null;
+  var opponents = null;
   var match = null;
   if (query.length && (match = query.match(/^(?:(.+?) )?last (\d+) ?([a-z]+)$/))) {
     // Handle the 'last x days' suffix
@@ -301,32 +301,35 @@ async function handleAoe4WinRate(req, res) {
     if (versus.length == 2 && versus[1].length) {
       if (versus[0].length) {
         // "abc vs def"
-        player = [ await aoe4.findPlayerByQuery(versus[0], leaderboard) ];
+        players = await aoe4.findPlayersByQuery(versus[0], leaderboard);
       } else if (req.query.player) {
         // "vs def"
         // Atm we only need the full data for the first profile
         const profileIds = req.query.player.split(',').map(v => parseInt(v));
-        player = [ await aoe4.getPlayer(profileIds[0]), ...profileIds.slice(1).map(p => { return { profile_id: p }}) ];
+        players = [ await aoe4.getPlayer(profileIds[0]), ...profileIds.slice(1).map(p => { return { profile_id: p }}) ];
       }
-      options.opponent = await aoe4.findPlayerByQuery(versus[1], leaderboard);
-      if (!options.opponent) {
+      opponents = await aoe4.findPlayersByQuery(versus[1], leaderboard);
+      if (!opponents.length) {
         formatter.sendError('No player found for opponent', res);
         return;
       }
     } else {
-      player = [ await aoe4.findPlayerByQuery(query, leaderboard) ];
+      players = await aoe4.findPlayersByQuery(query, leaderboard);
     }
   } else if (req.query.player) {
     // Atm we only need the full data for the first profile
     const profileIds = req.query.player.split(',').map(v => parseInt(v));
-    player = [ await aoe4.getPlayer(profileIds[0]), ...profileIds.slice(1).map(p => { return { profile_id: p }}) ];
+    players = [ await aoe4.getPlayer(profileIds[0]), ...profileIds.slice(1).map(p => { return { profile_id: p }}) ];
   }
 
-  if (player.length && player[0]) {
-    const winrate = await getPlayerWinRate(player, options);
+  if (players.length) {
+    const playerProfileIds = players.map(p => p.profile_id);
+    const opponentProfileIds = opponents?.map(p => p.profile_id);
+    const winrate = await getPlayerWinRate(playerProfileIds, opponentProfileIds, options);
     if (winrate) {
-      winrate.player = player[0];
-      winrate.options = options;
+      winrate.player = players[0];
+      winrate.opponent = opponents ? opponents[0] : null;
+      winrate.options = { ...options, player_profile_ids: playerProfileIds, opponent_profile_ids: opponentProfileIds };
       formatter.sendWinRate(winrate, res);
     } else {
       formatter.sendError('No winrate available', res);
