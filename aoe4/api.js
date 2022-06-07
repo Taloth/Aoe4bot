@@ -178,6 +178,8 @@ async function getPlayer(profileId) {
     // Restructure to standard format
     const match = json;
 
+    match.modes = match.modes || {};
+
     return match;
   }
 

@@ -198,7 +198,7 @@ async function handleAoe4Rank(req, res) {
   if (query.length) {
     const players = await aoe4.findPlayersByQuery(query, leaderboard);
     // query might return multiple alts, get the highest ranked one.
-    players.sort((a, b) => a.modes[leaderboard].rank - b.modes[leaderboard].rank);
+    players.sort((a, b) => (a.modes[leaderboard]?.rank || 100000) - (b.modes[leaderboard]?.rank || 100000));
     player = players[0];
   } else if (req.query.player) {
     player = await aoe4.getPlayer(playerId);
