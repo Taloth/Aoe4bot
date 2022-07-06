@@ -76,7 +76,7 @@ const maps = [
     },
     {
         name: 'Mountain Pass',
-        altNames: [ ]
+        altNames: []
     },
     {
         name: 'Mongolian Heights',
@@ -107,6 +107,13 @@ const seasons = [
     started_at: Date.parse("2022-04-13T17:00Z"),
     ended_at: Date.parse("2022-06-30T17:00Z"),
     maps: [ 'Altai', 'Dry Arabia', 'High View', 'Hill and Dale', 'Lipany', 'Mongolian Heights' ]
+  },
+  {
+    number: 2,
+    name: "Map Monsters",
+    started_at: Date.parse("2022-07-14T17:00Z"),
+    ended_at: Date.parse("2022-10-18T17:00Z"), // Exact end date unknown
+    maps: [ 'Altai', 'Dry Arabia', 'High View', 'Hill and Dale', 'Lipany', 'Mongolian Heights', 'King of the Hill', 'Ancient Spires', 'The Pit' ]
   }
 ];
 
