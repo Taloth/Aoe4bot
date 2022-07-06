@@ -49,7 +49,7 @@ class NightbotDefaultFormatter {
   }
 
   formatMatchPlayer(match, player, short) {
-    const mode = player.modes[match.kind];
+    const mode = (player.modes || {})[match.kind];
 
     var msg = player.name;
     if (!short && mode && mode.rating) {
