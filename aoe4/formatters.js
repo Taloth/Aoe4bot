@@ -51,16 +51,20 @@ class NightbotDefaultFormatter {
   formatMatchPlayer(match, player, short) {
     const mode = (player.modes || {})[match.kind];
 
+    const rank = mode?.rank ? `#${mode.rank} ` : '';
+    const rank_level = mode?.rank_level ? formatRankLevel(mode.rank_level) + ', ' : '';
+
     var msg = player.name;
-    if (!short && mode && mode.rating) {
-      const rank = mode.rank ? `#${mode.rank} ` : '';
-      const rank_level = mode.rank_level ? formatRankLevel(mode.rank_level) + ', ' : '';
-      msg += ` ${rank}(${rank_level}${mode.rating} Elo)`;
-    }
 
     if (short) {
-      msg += ` (${this.formatCiv(player.civilization)})`;
+      msg += ` (`;
+      if (mode?.rating)
+        msg += `${rank_level}${mode.rating} Elo, `;
+      msg += `${this.formatCiv(player.civilization)}`;
+      msg += `)`;
     } else {
+      if (mode?.rating)
+        msg += ` ${rank}(${rank_level}${mode.rating} Elo)`;
       msg += ` - ${this.formatCiv(player.civilization)}`;
     }
 
