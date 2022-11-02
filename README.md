@@ -7,17 +7,31 @@ Server side api to simplify nightbot commands and query aoe4world.com api.
 
 You're free to Woolooloo if you can pull it off, KEKW
 
+## How to use with Nightbot
+
+In https://nightbot.tv/commands/custom dashboard (or in chat with `!addcom`).
+
+Nightbot has an 'urlfetch' command to send queries to a remote api. You can use this to add rich aoe4 commands.
+
+For example: 
+Command: `!rank`   
+Message: `@$(user)> $(urlfetch https://twitch.cascadenexus.net/api/aoe4/rank?query=$(querystring)&player=1270139&leaderboard=rm_solo&format=nightbot)`
+
+Obviously replace the player id with your own, 1270139 is Beastyqt.
+
+Note that `twitch.cascadenexus.net` is a personal server, there'll be no guarantees for uptime. Run the app yourself on your own server if needed.
+
 ## Examples
 
 ### !rank
 
 **Command:** `!rank`   
-**Url:** `api/aoe4/rank?query=$(querystring)&player=6943917&leaderboard=rm_1v1&format=nightbot`  
+**Url:** `api/aoe4/rank?query=$(querystring)&player=6943917&leaderboard=rm_solo&format=nightbot`  
 **Description:** Returns the rank and winrate of a player on a particular leaderboard
 
 **Parameters:**   
 - `player` optionally specifies the profile id of the default player if query is empty   
-- `leaderboard` defaults to `rm_1v1`  
+- `leaderboard` defaults to `rm_solo`. (`rm_solo`, `rm_team`, `qm_1v1`, `qm_2v2`, `qm_3v3` or `qm_4v4`)
 - `query` can be empty, a rank `#1` or a player name.
 
 **Examples:**
@@ -31,7 +45,7 @@ You're free to Woolooloo if you can pull it off, KEKW
 ### !match
 
 **Command:** `!match`  
-**Url:** `api/aoe4/match?query=$(querystring)&player=6943917,9087979&leaderboard=rm_1v1&format=nightbot`  
+**Url:** `api/aoe4/match?query=$(querystring)&player=6943917,9087979&leaderboard=rm_solo&format=nightbot`  
 **Description:** Returns the last completed match of a player.  
 
 **Parameters:**   
@@ -49,7 +63,7 @@ You're free to Woolooloo if you can pull it off, KEKW
 ## !winrate
 
 **Command:** `!winrate`  
-**Url:** `api/aoe4/winrate?query=$(querystring)&player=6943917,9087979&leaderboard=rm_1v1&format=nightbot`  
+**Url:** `api/aoe4/winrate?query=$(querystring)&player=6943917,9087979&leaderboard=rm_solo&format=nightbot`  
 **Description:** Returns the winrate of the player in the last playing session (a gap of 4h resets the session), can also be used to display the winrate between players in the same period. (Note: only the last 50 games are retrieved atm.)
 
 **Parameters:**   

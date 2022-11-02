@@ -144,7 +144,7 @@ async function getPlayerWinRate(playerProfileIds, opponentProfileIds, options) {
 // Query Params:
 // query        rank '#1' or player name 'xyz' to search for
 // player       Serves as default player identifier of 'query' is empty. comma separated list of profile_ids, the latest game for any of the specified profiles is used.
-// leaderboard  Specifies on which leaderboard to search for the user. 'rm_1v1'/'qm_1v1'/etc
+// leaderboard  Specifies on which leaderboard to search for the user. 'rm_solo'/'rm_team'/'qm_1v1'/etc
 // format       Specifies the format of the output, defaults to json. 'nightbot' is a text output for twitch chat.
 async function handleAoe4Match(req, res) {
   const query = req.query.query || '';
@@ -152,7 +152,7 @@ async function handleAoe4Match(req, res) {
   const format = req.query.format;
   const players = [];
   if (query.length) {
-    players.push(...await aoe4.findPlayersByQuery(query, leaderboard || 'rm_1v1'));
+    players.push(...await aoe4.findPlayersByQuery(query, leaderboard || 'rm_solo'));
   } else if (req.query.player) {
     players.push(...req.query.player.split(',').map(v => ({ profile_id: parseInt(v) })));
   }
@@ -187,11 +187,11 @@ async function handleAoe4Match(req, res) {
 // Query Params:
 // query        rank '#1' or player name 'xyz' to search for
 // player       Serves as default player identifier of 'query' is empty. Must be single profile_id.
-// leaderboard  Specifies on which leaderboard to search for the user, and rank/elo from that ladder is used in formatting. 'rm_1v1'/'qm_1v1'/etc
+// leaderboard  Specifies on which leaderboard to search for the user, and rank/elo from that ladder is used in formatting. 'rm_solo''/'rm_team'/'qm_1v1'/etc
 // format       Specifies the format of the output, defaults to json. 'nightbot' is a text output for twitch chat.
 async function handleAoe4Rank(req, res) {
   const query = req.query.query || '';
-  const leaderboard = req.query.leaderboard || 'rm_1v1';
+  const leaderboard = req.query.leaderboard || 'rm_solo';
   const format = req.query.format;
   const playerId = parseInt(req.query.player || '0');
   var player = null;

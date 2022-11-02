@@ -30,10 +30,8 @@ function fetchAOE4World(path, params) {
 }
 
 function isValidLeaderboard(leaderboard) {
-  if (/^[qr]m_\dv\d$/.test(leaderboard))
-    return true;
-  else
-    return false;
+  return /^rm_(solo|team)$/.test(leaderboard) ||
+    /^[qr]m_\dv\d$/.test(leaderboard);
 }
 
 async function findPlayerByName(name, leaderboard) {
@@ -73,16 +71,16 @@ async function findPlayerByName(name, leaderboard) {
       };
       return player;
     }
-  } else {
-    const json = await fetchAOE4World('/players/search', options);
-    if (json && json.count && json.players) {
-      const player = json.players[0];
+  }
 
-      // Restructure to standard format to make things easier for formatter
-      player.modes = player.leaderboards;
-      delete player.leaderboards;
-      return player;
-    }
+  const json = await fetchAOE4World('/players/search', options);
+  if (json && json.count && json.players) {
+    const player = json.players[0];
+
+    // Restructure to standard format to make things easier for formatter
+    player.modes = player.leaderboards;
+    delete player.leaderboards;
+    return player;
   }
 
   return null;
@@ -104,7 +102,7 @@ async function findPlayerByRank(rank, leaderboard) {
           "rating": 9999,
           "rank": 0,
           "games_count": 0,
-          "rank_level": leaderboard == 'rm_1v1' ? 'conqueror_4' : null
+          "rank_level": /^rm_/.test(leaderboard) ? 'conqueror_4' : null
         }
       }
     };

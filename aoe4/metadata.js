@@ -45,7 +45,19 @@ const civs = [
         id: 'rus',
         name: 'Rus',
         shortName: 'Rus',
-        altNames: []
+        altNames: [ 'Rus' ]
+    },
+    {
+        id: 'mal',
+        name: 'Malians',
+        shortName: 'Malians',
+        altNames: [ 'Mal', 'Malian' ]
+    },
+    {
+        id: 'ott',
+        name: 'Ottomans',
+        shortName: 'Ottomans',
+        altNames: [ 'Ott', 'Otto', 'Ottoman' ]
     }
 ];
 
@@ -97,7 +109,39 @@ const maps = [
     {
         name: 'French Pass',
         altNames: []
-    }
+    },
+    {
+        name: 'Forest Ponds',
+        altNames: []
+    },
+    {
+        name: 'Hideout',
+        altNames: []
+    },
+    {
+        name: 'Mountain Clearing',
+        altNames: []
+    },
+    {
+        name: 'Wetlands',
+        altNames: []
+    },
+    {
+        name: 'Prairie',
+        altNames: []
+    },
+    {
+        name: 'Waterholes',
+        altNames: []
+    },
+    {
+        name: 'Mediterranean',
+        altNames: []
+    },
+    {
+        name: 'Oasis',
+        altNames: []
+    },
 ];
 
 const seasons = [
@@ -112,8 +156,15 @@ const seasons = [
     number: 2,
     name: "Map Monsters",
     started_at: Date.parse("2022-07-14T17:00Z"),
-    ended_at: Date.parse("2022-10-24T17:00Z"),
+    ended_at: Date.parse("2022-10-25T07:00Z"),
     maps: [ 'Altai', 'Dry Arabia', 'High View', 'Hill and Dale', 'Lipany', 'Mongolian Heights', 'King of the Hill', 'Ancient Spires', 'The Pit' ]
+  },
+  {
+    number: 3,
+    name: "Anniversary",
+    started_at: Date.parse("2022-10-26T17:00Z"),
+    ended_at: Date.parse("2023-02-15T17:00Z"),
+    maps: [ 'Dry Arabia', 'The Pit', 'Hill and Dale', 'Mediterranean', 'Ancient Spires', 'Forest Ponds', 'Lipany' ]
   }
 ];
 

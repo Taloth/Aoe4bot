@@ -60,11 +60,15 @@ class NightbotDefaultFormatter {
       msg += ` (`;
       if (mode?.rating)
         msg += `${rank_level}${mode.rating} Elo, `;
+      else if (match.kind?.match(/^(qm|rm)_/))
+        msg += 'unranked, ';
       msg += `${this.formatCiv(player.civilization)}`;
-      msg += `)`;
+      msg += ')';
     } else {
       if (mode?.rating)
         msg += ` ${rank}(${rank_level}${mode.rating} Elo)`;
+      else if (match.kind?.match(/^(qm|rm)_/))
+        msg += ' (unranked)';
       msg += ` - ${this.formatCiv(player.civilization)}`;
     }
 
