@@ -49,7 +49,8 @@ class NightbotDefaultFormatter {
   }
 
   formatMatchPlayer(match, player, short) {
-    const mode = (player.modes || {})[match.kind];
+    const leaderboard = match.kind == 'rm_1v1' ? 'rm_solo' : (match.kind?.match(/^rm_(2v2|3v3|4v4)$/) ? 'rm_team' : match.kind);
+    const mode = (player.modes || {})[leaderboard];
 
     const rank = mode?.rank ? `#${mode.rank} ` : '';
     const rank_level = mode?.rank_level ? formatRankLevel(mode.rank_level) + ', ' : '';

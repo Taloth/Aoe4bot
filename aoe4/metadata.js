@@ -48,13 +48,13 @@ const civs = [
         altNames: [ 'Rus' ]
     },
     {
-        id: 'mal',
+        id: 'malians',
         name: 'Malians',
         shortName: 'Malians',
         altNames: [ 'Mal', 'Malian' ]
     },
     {
-        id: 'ott',
+        id: 'ottomans',
         name: 'Ottomans',
         shortName: 'Ottomans',
         altNames: [ 'Ott', 'Otto', 'Ottoman' ]
