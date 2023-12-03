@@ -58,6 +58,42 @@ const civs = [
         name: 'Ottomans',
         shortName: 'Ottomans',
         altNames: [ 'Ott', 'Otto', 'Ottoman' ]
+    },
+    {
+        id: 'ayyubids',
+        name: 'Ayyubids',
+        shortName: 'Ayyubids',
+        altNames: [ 'Ayy', 'Ayu', 'Ayyubid' ]
+    },
+    {
+        id: 'byzantines',
+        name: 'Byzantines',
+        shortName: 'Byzantines',
+        altNames: [ 'Byz', 'Byzantine' ]
+    },
+    {
+        id: 'japanese',
+        name: 'Japanese',
+        shortName: 'Japanese',
+        altNames: [ 'Jap', 'Jpn' ]
+    },
+    {
+        id: 'jeanne_darc',
+        name: 'Jeanne d\'Arc',
+        shortName: 'Jeanne d\'Arc',
+        altNames: [ 'JDA', 'JD', 'Jeanne', 'John Dark' ]
+    },
+    {
+        id: 'order_of_the_dragon',
+        name: 'Order of the Dragon',
+        shortName: 'OotD',
+        altNames: [ 'OTD' ]
+    },
+    {
+        id: 'zhu_xis_legacy',
+        name: 'Zhu Xi\'s Legacy',
+        shortName: 'Zhu Xi',
+        altNames: [ 'Zhu', 'Zhuxi' ]
     }
 ];
 
@@ -135,11 +171,90 @@ const maps = [
         altNames: []
     },
     {
-        name: 'Mediterranean',
+        name: 'Baltic',
         altNames: []
     },
     {
         name: 'Oasis',
+        altNames: []
+    },
+    // S4
+    {
+        name: 'Continental',
+        altNames: []
+    },
+    {
+        name: 'Marshland',
+        altNames: []
+    },
+    {
+        name: 'Four Lakes',
+        altNames: []
+    },
+    // S5
+    {
+        name: 'Migration',
+        altNames: []
+    },
+    {
+        name: 'Volcanic Island',
+        altNames: []
+    },
+    {
+        name: 'Golden Heights',
+        altNames: []
+    },
+    // S6
+    {
+        name: 'African Waters',
+        altNames: []
+    },
+    {
+        name: 'Thickets',
+        altNames: []
+    },
+    {
+        name: 'Golden Pit',
+        altNames: []
+    },
+    {
+        name: 'Cliffside',
+        altNames: []
+    },
+    {
+        name: 'Gorge',
+        altNames: []
+    },
+    {
+        name: 'Canal',
+        altNames: []
+    },
+    {
+        name: 'Glade',
+        altNames: []
+    },
+    {
+        name: 'Haywire',
+        altNames: []
+    },
+    {
+        name: 'Turtle Ridge',
+        altNames: []
+    },
+    {
+        name: 'Rocky River',
+        altNames: []
+    },
+    {
+        name: 'Himeyama',
+        altNames: []
+    },
+    {
+        name: 'Forts',
+        altNames: []
+    },
+    {
+        name: 'Hidden Valley',
         altNames: []
     },
 ];
@@ -163,8 +278,29 @@ const seasons = [
     number: 3,
     name: "Anniversary",
     started_at: Date.parse("2022-10-26T17:00Z"),
-    ended_at: Date.parse("2023-02-15T17:00Z"),
+    ended_at: Date.parse("2023-02-16T17:59Z"),
     maps: [ 'Dry Arabia', 'The Pit', 'Hill and Dale', 'Mediterranean', 'Ancient Spires', 'Forest Ponds', 'Lipany' ]
+  },
+  {
+    number: 4,
+    name: "Enchanted Grove",
+    started_at: Date.parse("2023-02-17T18:00Z"),
+    ended_at: Date.parse("2023-06-15T06:55Z"),
+    maps: [ 'Dry Arabia', 'Prairie', 'Lipany', 'Ancient Spires', 'Wetlands', 'Oasis', 'Altai', 'Boulder Bay', 'Waterholes' ]
+  },
+  {
+    number: 5,
+    name: "Map Monsters Summer",
+    started_at: Date.parse("2023-06-16T17:00Z"),
+    ended_at: Date.parse("2023-11-14T07:59Z"),
+    maps: [ 'Boulder Bay', 'Dry Arabia', 'Golden Heights', 'Hideout', 'High View', 'Hill and Dale', 'Marshland', 'The Pit', 'Volcanic Island' ]
+  },
+  {
+    number: 6,
+    name: "Fireside",
+    started_at: Date.parse("2023-11-15T18:00Z"),
+    ended_at: Date.parse("2024-03-14T06:59Z"),
+    maps: [ 'Dry Arabia', 'Canal', 'Cliffside', 'Golden Heights', 'Golden Pit', 'Gorge', 'Hidden Valley', 'Himeyama', 'Rocky River' ]
   }
 ];
 
